@@ -1,9 +1,9 @@
 package client
 
-import (
-	"os"
-	"testing"
-)
+// import (
+// "os"
+// "testing"
+// )
 
 func CreateResourceSet(rs ResourceSet) error {
 	c, err := NewClient(GetConfigFromEnv())
@@ -43,20 +43,20 @@ var testTemplate Template
 var disklessTestTemplate Template
 var accVm Vm
 
-func TestMain(m *testing.M) {
-	FindPoolForTests(&accTestPool)
-	FindTemplateForTests(&testTemplate, accTestPool.Id, "XOA_TEMPLATE")
-	FindTemplateForTests(&disklessTestTemplate, accTestPool.Id, "XOA_DISKLESS_TEMPLATE")
-	FindHostForTests(accTestPool.Master, &accTestHost)
-	FindStorageRepositoryForTests(accTestPool, &accDefaultSr, integrationTestPrefix)
-	CreateNetwork(&accDefaultNetwork)
-	FindOrCreateVmForTests(&accVm, accTestPool.Id, accDefaultSr.Id, testTemplate.Id, integrationTestPrefix)
-	CreateResourceSet(testResourceSet)
+// func TestMain(m *testing.M) {
+// 	FindPoolForTests(&accTestPool)
+// 	FindTemplateForTests(&testTemplate, accTestPool.Id, "XOA_TEMPLATE")
+// 	FindTemplateForTests(&disklessTestTemplate, accTestPool.Id, "XOA_DISKLESS_TEMPLATE")
+// 	FindHostForTests(accTestPool.Master, &accTestHost)
+// 	FindStorageRepositoryForTests(accTestPool, &accDefaultSr, integrationTestPrefix)
+// 	CreateNetwork(&accDefaultNetwork)
+// 	FindOrCreateVmForTests(&accVm, accTestPool.Id, accDefaultSr.Id, testTemplate.Id, integrationTestPrefix)
+// 	CreateResourceSet(testResourceSet)
 
-	code := m.Run()
+// 	code := m.Run()
 
-	RemoveResourceSetsWithNamePrefix(integrationTestPrefix)("")
-	RemoveNetworksWithNamePrefix(integrationTestPrefix)("")
+// 	RemoveResourceSetsWithNamePrefix(integrationTestPrefix)("")
+// 	RemoveNetworksWithNamePrefix(integrationTestPrefix)("")
 
-	os.Exit(code)
-}
+// 	os.Exit(code)
+// }
