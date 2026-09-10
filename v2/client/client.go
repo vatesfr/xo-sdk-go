@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"path"
@@ -181,6 +182,13 @@ func (c *Client) doRequest(req *http.Request) (*http.Response, error) {
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		bodyBytes, readErr := io.ReadAll(resp.Body)
 		_ = resp.Body.Close()
+		slog.DebugContext(req.Context(), "Received HTTP response",
+			"method", req.Method,
+			"url", req.URL.String(),
+			"status", resp.StatusCode,
+			"body", string(bodyBytes),
+			"read_error", readErr,
+		)
 		if readErr != nil {
 			return nil, core.ErrFailedToReadResponse.WithArgs(readErr, "")
 		}
@@ -194,12 +202,14 @@ func (c *Client) do(ctx context.Context, method, endpoint string, params map[str
 	reqURL := c.buildURL(endpoint)
 
 	var reqBody io.Reader
+	var requestBody string
 	if params != nil && (method == "POST" || method == "PUT" || method == "PATCH") {
 		jsonData, err := json.Marshal(params)
 		if err != nil {
 			return core.ErrFailedToMarshalParams.WithArgs(err, string(jsonData))
 		}
 		reqBody = bytes.NewBuffer(jsonData)
+		requestBody = string(jsonData)
 	} else if params != nil {
 		q := reqURL.Query()
 		for k, v := range params {
@@ -218,6 +228,12 @@ func (c *Client) do(ctx context.Context, method, endpoint string, params map[str
 		req.Header.Set("Content-Type", "application/json")
 	}
 
+	slog.DebugContext(ctx, "Sending HTTP request",
+		"method", req.Method,
+		"url", req.URL.String(),
+		"body", requestBody,
+	)
+
 	resp, err := c.doRequest(req)
 	if err != nil {
 		return err
@@ -225,6 +241,13 @@ func (c *Client) do(ctx context.Context, method, endpoint string, params map[str
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
+	slog.DebugContext(ctx, "Received HTTP response",
+		"method", req.Method,
+		"url", req.URL.String(),
+		"status", resp.StatusCode,
+		"body", string(bodyBytes),
+		"read_error", err,
+	)
 	if err != nil {
 		return core.ErrFailedToReadResponse.WithArgs(err, string(bodyBytes))
 	}
